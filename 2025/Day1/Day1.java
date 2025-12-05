@@ -39,7 +39,7 @@ public class Day1 {
             int count = Integer.parseInt(line.substring(1));
             total += count / 100;
             int calc = pos + dir * (count % 100);
-            if (count % 100 != 0 && (calc <= 0 || calc >= 100)) {
+            if (count % 100 != 0 && pos != 0 && (calc <= 0 || calc >= 100)) {
                 total++;
             }
             pos = Math.floorMod(calc, 100);
