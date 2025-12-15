@@ -2,7 +2,6 @@ import java.math.BigInteger;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,45 +13,41 @@ public class Day2 {
 
     public static void puzzle1() {
         Path path = Paths.get(System.getProperty("user.dir") + "\\input");
-        BigInteger total = BigInteger.ZERO;
+        long total = 0;
         try (Scanner scanner = new Scanner(path)) {
             scanner.useDelimiter(",");
             while (scanner.hasNext()) {
                 String[] bounds = scanner.next().split("-");
-                bounds[1] = bounds[1].trim();
-                String sub = null;
+                long upperBound = Long.parseLong(bounds[1].trim());
+                long sub = -1;
+                long power = -1;
                 if (bounds[0].length() % 2 == 1) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append('1');
-                    for (int i = 0; i < bounds[0].length() / 2; i++) {
-                        sb.append('0');
-                    }
-                    sub = sb.toString();
+                    sub = powerOf10(bounds[0].length() / 2);
+                    power = sub * 10;
                 } else {
-                    String sub1 = bounds[0].substring(0, bounds[0].length() / 2);
-                    String sub2 = bounds[0].substring(bounds[0].length() / 2);
-                    BigInteger sub1Int = new BigInteger(sub1);
-                    BigInteger sub2Int = new BigInteger(sub2);
-                    if (sub1Int.compareTo(sub2Int) >= 0) {
+                    power = powerOf10(bounds[0].length() / 2);
+                    long sub1 = Long.parseLong(bounds[0].substring(0, bounds[0].length() / 2));
+                    long sub2 = Long.parseLong(bounds[0].substring(bounds[0].length() / 2));
+                    if (sub1 >= sub2) {
                         sub = sub1;
                     } else {
-                        sub = (new BigInteger(sub1)).add(BigInteger.ONE).toString();
+                        sub = sub1 + 1;
                     }
                 }
-                BigInteger end = new BigInteger(bounds[1]);
-                BigInteger num = new BigInteger(sub + sub);
-                while (num.compareTo(end) <= 0) {
-                    System.out.println(num);
-                    total = total.add(num);
-                    sub = (new BigInteger(sub)).add(BigInteger.ONE).toString();
-                    num = new BigInteger(sub + sub);
-                    
+                long num = sub * power + sub;
+                while (num <= upperBound) {
+                    total += num;
+                    sub++;
+                    if (sub == power) {
+                        power *= 10;
+                    }
+                    num = sub * power + sub;                    
                 }
             }
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
         }
-        System.out.println("Puzzle 1 Number of invalid IDs: " + total);
+        System.out.println("Puzzle 1 answer: " + total);
     }
 
     public static void puzzle2() {
@@ -61,6 +56,22 @@ public class Day2 {
         
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
+        }
+    }
+
+    private static long powerOf10(int n) {
+        long[] powers = {1, 10, 100, 1000, 10000, 100000, 1000000};
+        if (n < powers.length) {
+            return powers[n];
+        } else {
+            long p = powers[powers.length - 1];
+            n -= powers.length - 1;
+            while (n > 0) {
+                int exp = Math.min(powers.length - 1, n);
+                p *= powers[exp];
+                n -= exp;
+            }
+            return p;
         }
     }
 }
